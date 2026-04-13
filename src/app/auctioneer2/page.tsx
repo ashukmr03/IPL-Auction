@@ -29,7 +29,7 @@ const fetchAuctionState = async (): Promise<AuctionStateRow | null> => {
 };
 
 const fetchPlayers = async (): Promise<Player[]> => {
-  const { data, error } = await supabase.from("players").select("*");
+  const { data, error } = await supabase.from("players").select("*").order("sl_no", { ascending: true });
 
   if (error) {
     throw error;
@@ -52,6 +52,21 @@ const fetchPlayers = async (): Promise<Player[]> => {
 
       return leftPlayer.name.localeCompare(rightPlayer.name);
     });
+};
+
+const fetchFirstPlayer = async (): Promise<Player | null> => {
+  const { data, error } = await supabase
+    .from("players")
+    .select("*")
+    .order("sl_no", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data ? mapPlayerRow(data as PlayerRow) : null;
 };
 
 const applyAuctionStateToPlayer = (player: Player | null, auctionState: AuctionStateRow | null): Player | null => {
@@ -112,8 +127,9 @@ export default function AuctioneerTwoPage() {
   }, []);
 
   const activeIndex = players.findIndex((player) => player.id === auctionState?.current_player_id);
-  const selectedPlayer = activeIndex >= 0 ? players[activeIndex] : players[0] ?? null;
+  const selectedPlayer = activeIndex >= 0 ? players[activeIndex] : null;
   const activePlayer = applyAuctionStateToPlayer(selectedPlayer, auctionState);
+  const hasSelectedPlayer = Boolean(auctionState?.current_player_id && activePlayer);
 
   const persistAuctionState = async (updates: Partial<AuctionStateRow>) => {
     if (!auctionState?.id) {
@@ -147,21 +163,45 @@ export default function AuctioneerTwoPage() {
     }
   };
 
+  const activatePlayer = async (player: Player) => {
+    await persistAuctionState({
+      current_player_id: player.id,
+      current_bid: 0,
+      status: "bidding",
+    });
+  };
+
+  const handleStartAuction = async () => {
+    try {
+      const firstPlayer = await fetchFirstPlayer();
+
+      if (!firstPlayer) {
+        setErrorMessage("No players were found in Supabase. Add players before starting the auction.");
+        return;
+      }
+
+      await activatePlayer(firstPlayer);
+    } catch (error) {
+      setErrorMessage(getErrorMessage(error));
+    }
+  };
+
   const handleMove = async (direction: -1 | 1) => {
     if (!players.length) {
       return;
     }
 
     try {
-      const currentIndex = activeIndex >= 0 ? activeIndex : direction === 1 ? -1 : 0;
+      const currentIndex =
+        activeIndex >= 0
+          ? activeIndex
+          : direction === 1
+            ? -1
+            : players.length;
       const nextIndex = (currentIndex + direction + players.length) % players.length;
       const nextPlayer = players[nextIndex];
 
-      await persistAuctionState({
-        current_player_id: nextPlayer.id,
-        current_bid: 0,
-        status: "bidding",
-      });
+      await activatePlayer(nextPlayer);
     } catch {}
   };
 
@@ -216,7 +256,7 @@ export default function AuctioneerTwoPage() {
             <div className="rounded-[1.4rem] border border-[#decfae] bg-white px-5 py-4 text-right shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
               <p className="text-[0.68rem] font-semibold uppercase tracking-[0.34em] text-[#776744]">Live Lot</p>
               <p className="mt-2 font-display text-3xl leading-none">
-                {String((activeIndex >= 0 ? activeIndex : 0) + 1).padStart(2, "0")}
+                {String(activeIndex >= 0 ? activeIndex + 1 : 0).padStart(2, "0")}
                 <span className="mx-1 text-[#b89543]">/</span>
                 {String(players.length).padStart(2, "0")}
               </p>
@@ -237,42 +277,63 @@ export default function AuctioneerTwoPage() {
               <h2 className="mt-4 font-display text-4xl leading-none sm:text-5xl">Loading the controller console</h2>
             </div>
           </section>
-        ) : activePlayer ? (
+        ) : (
           <section className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_380px]">
-            <PlayerCard player={activePlayer} className="h-full" />
+            {activePlayer ? (
+              <PlayerCard player={activePlayer} className="h-full" />
+            ) : (
+              <section className="grid min-h-[60vh] place-items-center rounded-[2rem] border border-[#d9cdb5] bg-[#fffaf0]/95 px-8 text-center shadow-[0_18px_40px_rgba(8,40,84,0.08)]">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.42em] text-[#7d6a39]">Auction Ready</p>
+                  <h2 className="mt-5 font-display text-4xl leading-none sm:text-5xl">Start the auction to load the first player</h2>
+                  <p className="mt-4 text-sm uppercase tracking-[0.22em] text-[#5f6980]">
+                    The shared auction_state row is connected. Use Start Auction, Next Player, or Previous Player to pick a live lot.
+                  </p>
+                </div>
+              </section>
+            )}
 
             <aside className="grid gap-5 self-start rounded-[1.8rem] border border-[#d9cdb5] bg-[#fffaf0]/95 p-5 shadow-[0_18px_40px_rgba(8,40,84,0.08)]">
               <div className="rounded-[1.4rem] border border-[#decfae] bg-white px-5 py-4">
                 <p className="text-[0.72rem] font-semibold uppercase tracking-[0.34em] text-[#776744]">Command Deck</p>
-                <p className="mt-3 font-display text-3xl leading-none">{activePlayer.name}</p>
+                <p className="mt-3 font-display text-3xl leading-none">{activePlayer?.name ?? "Auction Not Started"}</p>
                 <p className="mt-2 text-sm uppercase tracking-[0.24em] text-[#5f6980]">
-                  Status: <span className="font-semibold text-[#082854]">{activePlayer.status}</span>
+                  Status: <span className="font-semibold text-[#082854]">{activePlayer?.status ?? "waiting"}</span>
                 </p>
               </div>
+
+              <button
+                type="button"
+                onClick={() => void handleStartAuction()}
+                disabled={isSaving || !auctionState?.id || players.length === 0}
+                className="rounded-[1.4rem] border border-[#082854] bg-[#082854] px-5 py-5 text-base font-semibold uppercase tracking-[0.28em] text-[#fdfbf7] shadow-[0_20px_35px_rgba(8,40,84,0.2)] transition hover:-translate-y-0.5 hover:bg-[#0d356c] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Start Auction
+              </button>
 
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => void handleMove(-1)}
-                  disabled={isSaving || !auctionState?.id}
+                  disabled={isSaving || !auctionState?.id || players.length === 0}
                   className="rounded-[1.2rem] border border-[#d8c9ab] bg-white px-4 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[#082854] transition hover:-translate-y-0.5 hover:bg-[#f8f1df] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Previous
+                  Previous Player
                 </button>
                 <button
                   type="button"
                   onClick={() => void handleMove(1)}
-                  disabled={isSaving || !auctionState?.id}
+                  disabled={isSaving || !auctionState?.id || players.length === 0}
                   className="rounded-[1.2rem] border border-[#d8c9ab] bg-white px-4 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-[#082854] transition hover:-translate-y-0.5 hover:bg-[#f8f1df] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Next
+                  Next Player
                 </button>
               </div>
 
               <button
                 type="button"
                 onClick={() => void handlePlaceBid()}
-                disabled={isSaving || !auctionState?.current_player_id}
+                disabled={isSaving || !hasSelectedPlayer}
                 className="rounded-[1.4rem] border border-[#082854] bg-[#082854] px-5 py-5 text-base font-semibold uppercase tracking-[0.28em] text-[#fdfbf7] shadow-[0_20px_35px_rgba(8,40,84,0.2)] transition hover:-translate-y-0.5 hover:bg-[#0d356c] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Place Bid
@@ -282,7 +343,7 @@ export default function AuctioneerTwoPage() {
                 <button
                   type="button"
                   onClick={() => void handleMarkSold()}
-                  disabled={isSaving || !auctionState?.current_player_id}
+                  disabled={isSaving || !hasSelectedPlayer}
                   className="rounded-[1.3rem] border border-[#c09a44] bg-[linear-gradient(135deg,#f7edd1_0%,#ebcd8d_100%)] px-5 py-4 text-sm font-semibold uppercase tracking-[0.24em] text-[#082854] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Mark as Sold
@@ -290,7 +351,7 @@ export default function AuctioneerTwoPage() {
                 <button
                   type="button"
                   onClick={() => void handleMarkUnsold()}
-                  disabled={isSaving || !auctionState?.current_player_id}
+                  disabled={isSaving || !hasSelectedPlayer}
                   className="rounded-[1.3rem] border border-[#d8c9ab] bg-[#f4ead7] px-5 py-4 text-sm font-semibold uppercase tracking-[0.24em] text-[#7a2323] transition hover:-translate-y-0.5 hover:bg-[#efe0c5] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Mark as Unsold
@@ -300,12 +361,14 @@ export default function AuctioneerTwoPage() {
               <div className="grid gap-3 rounded-[1.4rem] border border-[#decfae] bg-white px-5 py-4">
                 <div className="flex items-center justify-between gap-4">
                   <span className="text-[0.72rem] font-semibold uppercase tracking-[0.3em] text-[#776744]">Base Price</span>
-                  <span className="font-display text-2xl leading-none">{formatLakhs(activePlayer.basePriceLakhs)}</span>
+                  <span className="font-display text-2xl leading-none">
+                    {activePlayer ? formatLakhs(activePlayer.basePriceLakhs) : "Not Set"}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   <span className="text-[0.72rem] font-semibold uppercase tracking-[0.3em] text-[#776744]">Current Bid</span>
                   <span className="font-display text-2xl leading-none">
-                    {activePlayer.currentBidLakhs === 0 ? "No bids" : formatLakhs(activePlayer.currentBidLakhs)}
+                    {activePlayer ? (activePlayer.currentBidLakhs === 0 ? "No bids" : formatLakhs(activePlayer.currentBidLakhs)) : "No bids"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
@@ -314,16 +377,6 @@ export default function AuctioneerTwoPage() {
                 </div>
               </div>
             </aside>
-          </section>
-        ) : (
-          <section className="grid min-h-[60vh] place-items-center rounded-[1.8rem] border border-[#d9cdb5] bg-[#fffaf0]/95 px-6 py-8 text-center shadow-[0_18px_40px_rgba(8,40,84,0.08)]">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.42em] text-[#7d6a39]">Awaiting Data</p>
-              <h2 className="mt-4 font-display text-4xl leading-none sm:text-5xl">No player is selected in the live auction state yet</h2>
-              <p className="mt-4 text-sm uppercase tracking-[0.22em] text-[#5f6980]">
-                Use the controller navigation to assign the first player to the shared auction_state row.
-              </p>
-            </div>
           </section>
         )}
       </div>
