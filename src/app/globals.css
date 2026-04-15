@@ -16,12 +16,22 @@
   --font-display: var(--font-dm-serif);
 }
 
+html,
+body {
+  color: var(--ink);
+  font-family: var(--font-sans), sans-serif;
+  scrollbar-width: none;
+}
+
 body {
   background:
     linear-gradient(135deg, #ececec 0%, #f6f6f6 44%, #e5e5e5 100%),
     var(--surface);
-  color: var(--ink);
-  font-family: var(--font-sans), sans-serif;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
 }
 
 a {
