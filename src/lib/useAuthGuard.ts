@@ -4,29 +4,31 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase-client";
 
-export function useAuthGuard(allowedEmail: string) {
+export function useAuthGuard(allowedEmails: string | readonly string[]) {
     const router = useRouter();
 
     useEffect(() => {
         const checkUser = async () => {
-            const { data } = await supabase.auth.getUser();
+            const normalizedAllowed = (Array.isArray(allowedEmails) ? allowedEmails : [allowedEmails]).map((email) =>
+                email.toLowerCase(),
+            );
 
-            const user = data.user;
+            const {
+                data: { user },
+            } = await supabase.auth.getUser();
 
-            // ❌ Not logged in
-            if (!user) {
+            if (!user?.email) {
                 router.push("/admin/login");
                 return;
             }
 
-            const email = user.email;
-
-            // ❌ Wrong user
-            if (email !== allowedEmail) {
+            const normalizedUserEmail = user.email.toLowerCase();
+            if (!normalizedAllowed.includes(normalizedUserEmail)) {
+                await supabase.auth.signOut();
                 router.push("/admin/login");
             }
         };
 
-        checkUser();
-    }, [router, allowedEmail]);
+        void checkUser();
+    }, [router, allowedEmails]);
 }

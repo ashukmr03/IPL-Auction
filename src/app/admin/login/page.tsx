@@ -64,14 +64,21 @@ export default function AdminLoginPage() {
       }
 
       if (selectedRole === "auctioneer" && isAuctioneerEmail(userEmail)) {
-        router.push("/admin/auctioneer");
+        router.push("/auctioneer2");
         return;
       }
 
       setError("Unauthorized user for selected role.");
 
     } catch (err: any) {
-      setError(err.message || "Login failed");
+      const message = err?.message || "Login failed";
+      if (typeof message === "string" && message.toLowerCase().includes("invalid login credentials")) {
+        setError("Invalid email/password. Ensure this exact user exists in Supabase Auth and use the password from ADMIN_LOGIN_CREDENTIALS.txt.");
+      } else if (typeof message === "string" && message.toLowerCase().includes("email not confirmed")) {
+        setError("Email not confirmed. In Supabase Auth, mark the user as confirmed or create the user with auto-confirm.");
+      } else {
+        setError(message);
+      }
     } finally {
       setIsLoading(false);
     }

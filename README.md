@@ -46,6 +46,9 @@ The app uses these environment variables:
 
 - NEXT_PUBLIC_SUPABASE_URL
 - NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+- NEXT_PUBLIC_SUPABASE_ANON_KEY is also accepted as a fallback for older setups.
+- SUPABASE_SERVICE_ROLE_KEY is required for server-side bidding API (`/api/place-bid`).
+- SUPABASE_SECRET_KEY is also accepted (new Supabase key format) for server-side bidding API.
 
 Create a local env file before running the app:
 

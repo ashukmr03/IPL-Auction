@@ -54,7 +54,17 @@ const readObject = (value: unknown): Record<string, unknown> => {
 };
 
 const readStatus = (value: unknown): AuctionStatus => {
-  return value === "bidding" || value === "sold" || value === "unsold" ? value : DEFAULT_STATUS;
+  return value === "idle" || value === "bidding" || value === "sold" || value === "unsold" || value === "stopped"
+    ? value
+    : DEFAULT_STATUS;
+};
+
+const readRarity = (value: unknown): "common" | "epic" | "legendary" | undefined => {
+  const rarity = readString(value).toLowerCase();
+  if (rarity === "common" || rarity === "epic" || rarity === "legendary") {
+    return rarity;
+  }
+  return undefined;
 };
 
 const getValue = (row: Record<string, unknown>, ...keys: string[]): unknown => {
@@ -75,7 +85,12 @@ const getStatsValue = (row: Record<string, unknown>, stats: Record<string, unkno
 export const mapAuctionStateRow = (row: Record<string, unknown>): AuctionStateRow => ({
   id: readString(row.id),
   current_player_id: readString(row.current_player_id) || null,
-  current_bid: readNumber(row.current_bid),
+  current_bid: readNumber(getValue(row, "current_bid", "current_bid_lakhs", "currentBidLakhs")),
+  current_winning_franchise_code:
+    readString(getValue(row, "current_winning_franchise_code", "currentWinningFranchiseCode")) || null,
+  current_winning_bid_lakhs: readNumber(
+    getValue(row, "current_winning_bid_lakhs", "currentWinningBidLakhs"),
+  ),
   status: readStatus(row.status),
 });
 
@@ -83,29 +98,58 @@ export const mapPlayerRow = (row: PlayerRow, auctionState?: AuctionStateRow | nu
   const stats = readObject(getValue(row, "stats"));
   const playerId = readString(getValue(row, "id"));
   const slNo = readNumber(getValue(row, "sl_no", "slNo", "serial_no", "lot_number"));
+  const categorySource = readString(getValue(row, "country", "status", "player_type"));
+  const category =
+    readString(getValue(row, "category", "player_category")) ||
+    (categorySource.toLowerCase() === "overseas" ? "Overseas" : "Domestic");
+  const basePriceLakhs = readNumber(getValue(row, "base_price_lakhs", "base_price", "basePriceLakhs")) || 50;
+  const creditPoints = readNumber(getValue(row, "credit_points", "creditPoints"));
+  const rarity =
+    readRarity(getValue(row, "rarity", "card_tier", "tier")) ||
+    (creditPoints >= 92 ? "legendary" : creditPoints >= 84 ? "epic" : "common");
+  const matchesPlayed = readNumber(getValue(row, "matches_played", "matchesPlayed"));
+  const totalRuns = readNumber(getValue(row, "total_runs", "totalRuns"));
+  const battingAverage = readNumber(getValue(row, "batting_average", "battingAverage"));
+  const bestBowling = readString(getValue(row, "best_bowling", "bestBowling"));
+  const bowlingAverage = readNumber(getValue(row, "bowling_average", "bowlingAverage"));
+  const wicketsTaken = readNumber(getValue(row, "wickets_taken", "wicketsTaken"));
+  const economy = readNumber(getValue(row, "economy"));
+  const assignedFranchiseCode =
+    readString(getValue(row, "assigned_franchise_code", "assignedFranchiseCode")) || null;
+  const currentBidLakhs = readNumber(getValue(row, "current_bid_lakhs", "current_bid", "currentBidLakhs"));
+  const lastBidderId = readString(getValue(row, "last_bidder_code", "last_bidder_id", "lastBidderId")) || null;
+  const auctionStatus = readStatus(getValue(row, "auction_status", "status"));
 
   return {
     id: playerId,
     slNo: slNo || null,
     name: readString(getValue(row, "name")) || "Unknown Player",
     role: readString(getValue(row, "role", "player_role")) || "Player",
-    category:
-      readString(getValue(row, "category", "player_category")) ||
-      (readString(getValue(row, "country")).toLowerCase() === "india" ? "Domestic" : "Overseas"),
-    country: readString(getValue(row, "country")) || "Unknown",
+    rarity,
+    category,
+    country: categorySource || "Unknown",
     teams: readString(getValue(row, "teams", "former_teams", "previous_teams")),
     imageUrl: readString(getValue(row, "image_url", "imageUrl", "photo_url", "avatar_url")),
-    basePriceLakhs: readNumber(getValue(row, "base_price_lakhs", "base_price", "basePriceLakhs")) || 50,
-    currentBidLakhs: auctionState?.current_bid ?? readNumber(getValue(row, "current_bid", "currentBidLakhs")),
-    lastBidderId: readString(getValue(row, "last_bidder_id", "lastBidderId")) || null,
-    status: auctionState?.status ?? readStatus(getValue(row, "status")),
+    basePriceLakhs,
+    creditPoints,
+    matchesPlayed,
+    totalRuns,
+    battingAverage,
+    bestBowling,
+    bowlingAverage,
+    wicketsTaken,
+    economy,
+    currentBidLakhs: auctionState?.current_bid ?? currentBidLakhs,
+    lastBidderId,
+    assignedFranchiseCode,
+    status: auctionState?.status ?? auctionStatus,
     stats: {
-      matches: readNumber(getStatsValue(row, stats, "matches")),
+      matches: readNumber(getStatsValue(row, stats, "matches", "matches_played")) || matchesPlayed,
       highestScore: readNumber(getStatsValue(row, stats, "highest_score", "highestScore")) || undefined,
-      runs: readNumber(getStatsValue(row, stats, "runs")) || undefined,
-      wickets: readNumber(getStatsValue(row, stats, "wickets")) || undefined,
-      strikeRate: readNumber(getStatsValue(row, stats, "strike_rate", "strikeRate")),
-      average: readNumber(getStatsValue(row, stats, "average")),
+      runs: readNumber(getStatsValue(row, stats, "runs", "total_runs")) || totalRuns || undefined,
+      wickets: readNumber(getStatsValue(row, stats, "wickets", "wickets_taken")) || wicketsTaken || undefined,
+      strikeRate: readNumber(getStatsValue(row, stats, "strike_rate", "strikeRate")) || readNumber(getValue(row, "strike_rate")),
+      average: readNumber(getStatsValue(row, stats, "average", "batting_average")) || battingAverage,
     },
   };
 };

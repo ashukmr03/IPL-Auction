@@ -50,7 +50,7 @@ export default function AdminDashboardPage() {
 
         if (!isMounted) return;
 
-        setPlayers(sortPlayers(((playersData ?? []) as PlayerRow[]).map(mapPlayerRow)));
+        setPlayers(sortPlayers(((playersData ?? []) as PlayerRow[]).map((row) => mapPlayerRow(row))));
         setAuctionState(
           auctionStateData ? mapAuctionStateRow(auctionStateData as Record<string, unknown>) : null
         );
