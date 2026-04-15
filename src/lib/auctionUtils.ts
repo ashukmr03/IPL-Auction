@@ -81,13 +81,12 @@ export const mapAuctionStateRow = (row: Record<string, unknown>): AuctionStateRo
 
 export const mapPlayerRow = (row: PlayerRow, auctionState?: AuctionStateRow | null): Player => {
   const stats = readObject(getValue(row, "stats"));
-  const numericId = readNumber(getValue(row, "id"));
   const playerId = readString(getValue(row, "id"));
   const slNo = readNumber(getValue(row, "sl_no", "slNo", "serial_no", "lot_number"));
 
   return {
     id: playerId,
-    slNo: slNo || (numericId > 0 ? numericId : null),
+    slNo: slNo || null,
     name: readString(getValue(row, "name")) || "Unknown Player",
     role: readString(getValue(row, "role", "player_role")) || "Player",
     category:
@@ -96,7 +95,7 @@ export const mapPlayerRow = (row: PlayerRow, auctionState?: AuctionStateRow | nu
     country: readString(getValue(row, "country")) || "Unknown",
     teams: readString(getValue(row, "teams", "former_teams", "previous_teams")),
     imageUrl: readString(getValue(row, "image_url", "imageUrl", "photo_url", "avatar_url")),
-    basePriceLakhs: readNumber(getValue(row, "base_price_lakhs", "base_price", "basePriceLakhs")),
+    basePriceLakhs: readNumber(getValue(row, "base_price_lakhs", "base_price", "basePriceLakhs")) || 50,
     currentBidLakhs: auctionState?.current_bid ?? readNumber(getValue(row, "current_bid", "currentBidLakhs")),
     lastBidderId: readString(getValue(row, "last_bidder_id", "lastBidderId")) || null,
     status: auctionState?.status ?? readStatus(getValue(row, "status")),

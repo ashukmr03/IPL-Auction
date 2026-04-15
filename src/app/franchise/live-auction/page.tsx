@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useMemo, useState, Suspense } from "react";
@@ -265,11 +265,13 @@ function LiveAuctionContent() {
 
 export default function FranchiseLiveAuctionPage() {
   return (
-    <Suspense fallback={
-      <main className="dashboard-shell flex items-center justify-center">
-        <div className="text-xl font-bold animate-pulse">Loading Arena...</div>
-      </main>
-    }>
+    <Suspense
+      fallback={
+        <main className="dashboard-shell flex items-center justify-center">
+          <div className="text-xl font-bold animate-pulse">Loading Arena...</div>
+        </main>
+      }
+    >
       <LiveAuctionContent />
     </Suspense>
   );

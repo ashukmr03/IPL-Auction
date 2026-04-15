@@ -1,16 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabasePublishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-const createFallbackClient = () => ({
-  auth: {
-    signInWithPassword: async () => ({ data: null, error: null }),
-    getSession: async () => ({ data: { session: null }, error: null }),
-  },
-});
+if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error("Missing Supabase environment variables.");
+}
 
-export const supabase =
-  supabaseUrl && supabasePublishableKey
-    ? createClient(supabaseUrl, supabasePublishableKey)
-    : (createFallbackClient() as ReturnType<typeof createFallbackClient>);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);

@@ -1,0 +1,191 @@
+warning: in the working copy of 'src/app/admin/dashboard/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/auctioneer1/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/auctioneer2/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/franchise/dashboard/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/lib/auctionUtils.ts', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/README.md b/README.md[m
+[1mindex 6ac3039..eeb88af 100644[m
+[1m--- a/README.md[m
+[1m+++ b/README.md[m
+[36m@@ -59,3 +59,7 @@[m [mFor admin login, create at least one user in Supabase Auth (email + password) an[m
+ [m
+ - Franchise login is currently validated through a server route using fixed credentials in src/lib/franchises.ts.[m
+ - Replace those credentials with your final team-specific usernames/passwords before production.[m
+[32m+[m
+[32m+[m[32m# Known Issue:[m
+[32m+[m[32mSupabase RLS / permissions causing 403 on franchise_accounts despite correct policies.[m
+[32m+[m[32mLikely requires table recreation or backend auth restructuring.[m
+[1mdiff --git a/src/app/admin/dashboard/page.tsx b/src/app/admin/dashboard/page.tsx[m
+[1mindex fcd77bd..5e3ae82 100644[m
+[1m--- a/src/app/admin/dashboard/page.tsx[m
+[1m+++ b/src/app/admin/dashboard/page.tsx[m
+[36m@@ -50,7 +50,7 @@[m [mexport default function AdminDashboardPage() {[m
+         const [{ data: playersData, error: playersError }, { data: auctionStateData, error: auctionStateError }] =[m
+           await Promise.all([[m
+             supabase.from("players").seect("*"),[m
+[31m-            supabase.from("auction_state").select("*").limit(1).maybeSingle(),[m
+[32m+[m[32m            supabase.from("auction_state").select("*").limit(1).single(),[m
+           ]);[m
+ [m
+         if (playersError) {[m
+[1mdiff --git a/src/app/admin/login/page.tsx b/src/app/admin/login/page.tsx[m
+[1mindex b8377fe..77703c7 100644[m
+[1m--- a/src/app/admin/login/page.tsx[m
+[1m+++ b/src/app/admin/login/page.tsx[m
+[36m@@ -17,18 +17,39 @@[m [mexport default function AdminLoginPage() {[m
+     setError("");[m
+     setIsLoading(true);[m
+ [m
+[31m-    const { error: signInError } = await supabase.auth.signInWithPassword({[m
+[31m-      email,[m
+[31m-      password,[m
+[31m-    });[m
+[32m+[m[32m    try {[m
+[32m+[m[32m      const { data, error: signInError } = await supabase.auth.signInWithPassword({[m
+[32m+[m[32m        email,[m
+[32m+[m[32m        password,[m
+[32m+[m[32m      });[m
+ [m
+[31m-    if (signInError) {[m
+[31m-      setError(signInError.message);[m
+[32m+[m[32m      if (signInError) throw signInError;[m
+[32m+[m
+[32m+[m[32m      const userEmail = data.user?.email;[m
+[32m+[m
+[32m+[m[32m      // 🔥 ROLE-BASED REDIRECT (THIS IS THE FIX)[m
+[32m+[m[32m      if (userEmail === "superadmin@iplarena.in") {[m
+[32m+[m[32m        router.push("/superadmin");[m
+[32m+[m[32m        return;[m
+[32m+[m[32m      }[m
+[32m+[m
+[32m+[m[32m      if (userEmail === "auctioneer1@iplarena.in") {[m
+[32m+[m[32m        router.push("/auctioneer1");[m
+[32m+[m[32m        return;[m
+[32m+[m[32m      }[m
+[32m+[m
+[32m+[m[32m      if (userEmail === "auctioneer2@iplarena.in") {[m
+[32m+[m[32m        router.push("/auctioneer2");[m
+[32m+[m[32m        return;[m
+[32m+[m[32m      }[m
+[32m+[m
+[32m+[m[32m      setError("Unauthorized user");[m
+[32m+[m
+[32m+[m[32m    } catch (err: any) {[m
+[32m+[m[32m      setError(err.message || "Login failed");[m
+[32m+[m[32m    } finally {[m
+       setIsLoading(false);[m
+[31m-      return;[m
+     }[m
+[31m-[m
+[31m-    router.push("/admin/dashboard");[m
+   }[m
+ [m
+   return ([m
+[1mdiff --git a/src/app/auctioneer2/page.tsx b/src/app/auctioneer2/page.tsx[m
+[1mindex 872b318..75662a4 100644[m
+[1m--- a/src/app/auctioneer2/page.tsx[m
+[1m+++ b/src/app/auctioneer2/page.tsx[m
+[36m@@ -4,381 +4,266 @@[m [mimport { useEffect, useState } from "react";[m
+ import PlayerCard from "@/components/PlayerCard";[m
+ import { getNextBid, mapAuctionStateRow, mapPlayerRow } from "@/lib/auctionUtils";[m
+ import { supabase } from "@/lib/supabase-client";[m
+[32m+[m[32mimport { useAuthGuard } from "@/lib/useAuthGuard";[m
+ import type { AuctionStateRow, Player, PlayerRow } from "@/types/player";[m
+ [m
+ const formatLakhs = (amount: number): string => {[m
+   if (amount >= 100) {[m
+[31m-    return `Rs ${(amount / 100).toFixed(amount % 100 === 0 ? 1 : 2)} Cr`;[m
+[32m+[m[32m    return `Rs ${(amount / 100).toFixed(1)} Cr`;[m
+   }[m
+[31m-[m
+   return `Rs ${amount} L`;[m
+ };[m
+ [m
+[31m-const getErrorMessage = (error: unknown): string => {[m
+[31m-  return error instanceof Error ? error.message : "Unable to update the auction state.";[m
+[31m-};[m
+[31m-[m
+[31m-const fetchAuctionState = async (): Promise<AuctionStateRow | null> => {[m
+[31m-  const { data, error } = await supabase.from("auction_state").select("*").limit(1).maybeSingle();[m
+[31m-[m
+[31m-  if (error) {[m
+[31m-    throw error;[m
+[31m-  }[m
+[31m-[m
+[31m-  return data ? mapAuctionStateRow(data as Record<string, unknown>) : null;[m
+[31m-};[m
+[31m-[m
+[31m-const fetchPlayers = async (): Promise<Player[]> => {[m
+[31m-  const { data, error } = await supabase.from("players").select("*").order("sl_no", { ascending: true });[m
+[31m-[m
+[31m-  if (error) {[m
+[31m-    throw error;[m
+[31m-  }[m
+[31m-[m
+[31m-  return ((data ?? []) as PlayerRow[])[m
+[31m-    .map((playerRow) => mapPlayerRow(playerRow))[m
+[31m-    .sort((leftPlayer, rightPlayer) => {[m
+[31m-      if (leftPlayer.slNo !== null && rightPlayer.slNo !== null) {[m
+[31m-        return leftPlayer.slNo - rightPlayer.slNo;[m
+[31m-      }[m
+[31m-[m
+[31m-      if (leftPlayer.slNo !== null) {[m
+[31m-        return -1;[m
+[31m-      }[m
+[31m-[m
+[31m-      if (rightPlayer.slNo !== null) {[m
+[31m-        return 1;[m
+[31m-      }[m
+[31m-[m
+[31m-      return leftPlayer.name.localeCompare(rightPlayer.name);[m
+[31m-    });[m
+[31m-};[m
+[32m+[m[32mconst buttonBaseClassName =[m
+[32m+[m[32m  "px-5 py-2 rounded-xl shadow-md transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed";[m
+ [m
+[31m-const fetchFirstPlayer = async (): Promise<Player | null> => {[m
+[31m-  const { data, error } = await supabase[m
+[31m-    .from("players")[m
+[31m-    .select("*")[m
+[31m-    .order("sl_no", { ascending: true })[m
+[31m-    .limit(1)[m
+[31m-    .maybeSingle();[m
+[31m-[m
+[31m-  if (error) {[m
+[31m-    throw error;[m
+[31m-  }[m
+[31m-[m
+[31m-  return data ? mapPlayerRow(data as PlayerRow) : null;[m
+[31m-};[m
+[31m-[m
+[31m-const applyAuctionStateToPlayer = (player: Player | null, auctionState: AuctionStateRow | null): Player | null => {[m
+[31m-  if (!player) {[m
+[31m-    return null;[m
+[31m-  }[m
+[31m-[m
+[31m-  if (!auctionState) {[m
+[31m-    return player;[m
+[31m-  }[m
+[31m-[m
+[31m-  return {[m
+[31m-    ...player,[m
+[31m-    currentBidLakhs: auctionState.current_bid,[m
+[31m-    status: auctionState.status,[m
+[31m-  };[m
+[32m+[m[32mconst getErrorMessage = (error: unknown): string => {[m
+[32m+[m[32m  if (error instanceof Error) return error.message;[m
+[32m+[m[32m  return JSON.stringify(error) || "Something went wrong.";[m
+ };[m
+ [m
+ export default function AuctioneerTwoPage() {[m
+[32m+[m[32m  useAuthGuard("auctioneer2@iplarena.in");[m
+   const [players, setPlayers] = useState<Player[]>([]);[m
+   const [auctionState, setAuctionState] = useState<AuctionStateRow | null>(null);[m
+[31m-  const [errorMessage, setErrorMessage] = useState("");[m
+   const [isLoading, setIsLoading] = useState(true);[m
+   const [isSaving, setIsSaving] = useState(false);[m
+[32m+[m[32m  const [error, setError] = useState("");[m
+ [m
+[31m-  useEffect(() => {[m
+[31m-    let isMounted = true;[m
+[32m+[m[32m  

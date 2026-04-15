@@ -46,18 +46,35 @@ export default function AdminLoginPage() {
 
     setIsLoading(true);
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: normalizedEmail,
-      password,
-    });
+    try {
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password,
+      });
 
-    if (signInError) {
-      setError(signInError.message);
+      if (signInError) {
+        throw signInError;
+      }
+
+      const userEmail = data.user?.email?.toLowerCase() ?? "";
+
+      if (selectedRole === "super_admin" && isSuperAdminEmail(userEmail)) {
+        router.push("/admin/super-admin");
+        return;
+      }
+
+      if (selectedRole === "auctioneer" && isAuctioneerEmail(userEmail)) {
+        router.push("/admin/auctioneer");
+        return;
+      }
+
+      setError("Unauthorized user for selected role.");
+
+    } catch (err: any) {
+      setError(err.message || "Login failed");
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    router.push(selectedRole === "auctioneer" ? "/admin/auctioneer" : "/admin/super-admin");
   }
 
   return (
