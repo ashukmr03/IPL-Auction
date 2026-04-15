@@ -1,0 +1,1210 @@
+@import "tailwindcss";
+
+:root {
+  --surface: #efefef;
+  --surface-soft: #f8f8f8;
+  --ink: #111111;
+  --ink-soft: #3e3e3e;
+  --accent: #191919;
+  --accent-dark: #000000;
+  --secondary: #303030;
+  --line: #111111;
+}
+
+@theme inline {
+  --font-sans: var(--font-bricolage);
+  --font-display: var(--font-dm-serif);
+}
+
+body {
+  background:
+    linear-gradient(135deg, #ececec 0%, #f6f6f6 44%, #e5e5e5 100%),
+    var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans), sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.landing-shell,
+.auth-shell,
+.franchise-shell,
+.dashboard-shell {
+  min-height: 100vh;
+  padding: clamp(1rem, 2vw, 2rem);
+}
+
+.landing-shell {
+  max-width: 980px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 1rem;
+}
+
+.landing-nav,
+.auth-topbar {
+  border: 3px solid var(--line);
+  border-radius: 1.1rem;
+  background: #fff;
+  min-height: 4rem;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 5px 5px 0 #0000002b;
+}
+
+.logo-text {
+  font-family: var(--font-display), serif;
+  font-size: clamp(1.2rem, 2vw, 1.9rem);
+}
+
+.rules-pill,
+.badge {
+  border: 3px solid var(--line);
+  border-radius: 0.8rem;
+  background: #fff;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge.subtle {
+  background: #f3ecdc;
+}
+
+.hero-panel,
+.auth-panel,
+.franchise-grid-wrapper,
+.dashboard-card {
+  border: 3px solid var(--line);
+  border-radius: 1.5rem;
+  background: #fff;
+  box-shadow: 7px 7px 0 #00000024;
+}
+
+.hero-panel {
+  display: grid;
+  place-content: center;
+  text-align: center;
+  gap: 1.2rem;
+  padding: clamp(2rem, 7vw, 4.5rem);
+}
+
+.hero-panel h1 {
+  font-family: var(--font-display), serif;
+  font-size: clamp(2rem, 6vw, 4.25rem);
+  line-height: 1.04;
+}
+
+.hero-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+}
+
+.hero-divider span {
+  width: min(16vw, 5.2rem);
+  height: 2px;
+  background: var(--line);
+}
+
+.hero-divider strong {
+  font-size: 1.5rem;
+}
+
+.cta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.primary-button,
+.ghost-button {
+  border: 3px solid var(--line);
+  border-radius: 0.9rem;
+  min-height: 2.75rem;
+  padding: 0.6rem 1rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+.primary-button {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 4px 4px 0 #00000038;
+}
+
+.primary-button:hover {
+  background: var(--accent-dark);
+  transform: translateY(-1px);
+}
+
+.primary-button.secondary {
+  background: var(--secondary);
+}
+
+.ghost-button {
+  background: #f3f3f3;
+}
+
+.landing-cta {
+  min-height: 3.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-shell,
+.dashboard-shell,
+.franchise-shell {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.auth-panel,
+.dashboard-card {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 1.4rem;
+  text-align: center;
+}
+
+.admin-dashboard-shell {
+  max-width: 980px;
+}
+
+.admin-topbar {
+  border: 2px solid var(--line);
+  border-radius: 1rem;
+  background: #fffaec;
+  min-height: 4rem;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 3px 3px 0 #00000020;
+}
+
+.admin-branding {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+}
+
+.brand-dots {
+  letter-spacing: -2px;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 0.7rem;
+}
+
+.sketch-button,
+.sketch-tab,
+.role-banner {
+  border: 3px solid var(--line);
+  border-radius: 0.72rem;
+  background: #fff;
+  padding: 0.45rem 1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.logout-link {
+  display: inline-flex;
+  align-items: center;
+}
+
+.admin-board {
+  border: 3px solid var(--line);
+  border-radius: 1rem;
+  background: #fffef9;
+  padding: 0.8rem;
+  box-shadow: 5px 5px 0 #00000022;
+}
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  gap: 0.7rem;
+}
+
+.admin-stat-card {
+  border: 3px solid var(--line);
+  border-radius: 0.9rem;
+  background: #fff;
+  min-height: 6rem;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  gap: 0.2rem;
+  padding: 0.5rem;
+}
+
+.admin-stat-card p {
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+.admin-stat-card h2 {
+  font-family: var(--font-display), serif;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.admin-tab-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  border-bottom: 3px solid var(--line);
+  margin-top: 0.8rem;
+  padding: 0.35rem 0 0.3rem;
+}
+
+.sketch-tab {
+  padding: 0.2rem 0.8rem;
+  font-size: 0.85rem;
+  background: #fff8e4;
+}
+
+.sketch-tab.active {
+  background: #fff;
+}
+
+.random-player-block {
+  padding-top: 0.7rem;
+}
+
+.role-banner {
+  min-height: 3rem;
+  width: min(100%, 540px);
+  text-align: left;
+  font-family: var(--font-display), serif;
+  font-size: clamp(1.6rem, 3vw, 2rem);
+  line-height: 1;
+}
+
+.player-stack {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.9rem;
+  max-width: 360px;
+}
+
+.player-card {
+  border: 3px solid var(--line);
+  border-radius: 0.9rem;
+  background: #fff;
+  padding: 0.45rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.player-top-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.player-top-row h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.player-top-row small {
+  font-size: 0.73rem;
+  color: var(--ink-soft);
+}
+
+.radio-dot {
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 3px solid var(--line);
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.player-meta-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(80px, 1fr));
+  gap: 0.35rem;
+}
+
+.player-meta-row span,
+.player-meta-row strong {
+  border: 3px solid var(--line);
+  border-radius: 0.45rem;
+  padding: 0.2rem 0.3rem;
+  font-size: 0.68rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.player-meta-row strong {
+  font-weight: 700;
+}
+
+.auth-panel h1,
+.dashboard-card h1,
+.franchise-grid-wrapper h1,
+.franchise-login-panel h2 {
+  font-family: var(--font-display), serif;
+  font-size: clamp(1.5rem, 2.6vw, 2.3rem);
+}
+
+.auth-panel p,
+.dashboard-card p {
+  color: var(--ink-soft);
+  margin-top: 0.5rem;
+}
+
+.admin-role-picker {
+  margin-top: 0.8rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.admin-credentials-box {
+  margin-top: 0.9rem;
+  border: 3px solid var(--line);
+  border-radius: 0.9rem;
+  background: #fff;
+  padding: 0.65rem;
+  text-align: left;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.admin-credentials-box p {
+  font-size: 0.82rem;
+}
+
+.auth-form {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.auth-form input {
+  border: 3px solid var(--line);
+  border-radius: 0.75rem;
+  min-height: 2.7rem;
+  padding: 0.4rem 0.75rem;
+  background: #fffcf4;
+}
+
+.error-text {
+  color: #8f1f1a;
+  font-size: 0.9rem;
+}
+
+.franchise-grid-wrapper {
+  padding: 1.2rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.franchise-title {
+  text-align: left;
+}
+
+.franchise-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(110px, 1fr));
+  gap: 0.75rem;
+}
+
+.franchise-card {
+  border: 3px solid var(--line);
+  border-radius: 0.85rem;
+  background: #fff;
+  min-height: 6.5rem;
+  padding: 0.6rem;
+  text-align: left;
+  display: grid;
+  align-content: space-between;
+  gap: 0.5rem;
+}
+
+.franchise-card span {
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.franchise-card small {
+  font-size: 0.76rem;
+  color: var(--ink-soft);
+}
+
+.franchise-card.selected {
+  outline: 3px solid #000;
+  background: #f2f2f2;
+}
+
+.franchise-login-panel {
+  border: 3px solid var(--line);
+  border-radius: 1rem;
+  background: #fbfbfb;
+  margin-top: 0.5rem;
+  padding: 1rem;
+  max-width: 640px;
+}
+
+.franchise-login-form {
+  max-width: 540px;
+}
+
+.wire-label {
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.wire-login-button {
+  width: 9rem;
+}
+
+.franchise-selection-strip {
+  border: 3px solid var(--line);
+  border-radius: 0.9rem;
+  background: #fff;
+  padding: 0.65rem 0.8rem;
+}
+
+.franchise-dashboard-shell,
+.live-auction-shell {
+  max-width: 1220px;
+}
+
+.franchise-topbar-center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.franchise-team-board,
+.live-auction-board {
+  border: 3px solid var(--line);
+  border-radius: 1.5rem;
+  background: #fff;
+  box-shadow: 7px 7px 0 #0000002a;
+  padding: 1rem;
+}
+
+.franchise-team-summary {
+  border: 3px solid var(--line);
+  border-radius: 1.2rem;
+  background: #fff;
+  padding: 0.8rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.team-summary-main {
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+}
+
+.team-summary-main h1 {
+  font-family: var(--font-display), serif;
+  font-size: clamp(1.4rem, 2.4vw, 2rem);
+  line-height: 1;
+}
+
+.team-summary-main p {
+  margin-top: 0.2rem;
+  color: var(--ink-soft);
+}
+
+.team-avatar,
+.player-avatar {
+  width: 4.6rem;
+  height: 4.6rem;
+  border: 3px solid var(--line);
+  border-radius: 999px;
+  background: linear-gradient(145deg, #ece9e0, #dad5c7);
+}
+
+.team-purse-strip {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(3, minmax(110px, 1fr));
+}
+
+.team-purse-strip article,
+.purse-grid article,
+.price-cards article,
+.composition-grid article {
+  border: 3px solid var(--line);
+  border-radius: 0.85rem;
+  background: #fffdf7;
+  padding: 0.45rem 0.6rem;
+  text-align: center;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.team-purse-strip span,
+.purse-grid span,
+.price-cards span,
+.composition-grid span {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.team-purse-strip strong,
+.purse-grid strong,
+.price-cards strong,
+.composition-grid strong {
+  font-size: 1rem;
+}
+
+.franchise-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  border-top: 3px solid var(--line);
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+}
+
+.live-auction-cta {
+  margin-left: auto;
+}
+
+.market-grid {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 0.7rem;
+}
+
+.market-player-card,
+.market-pick {
+  border: 3px solid var(--line);
+  border-radius: 0.95rem;
+  background: #fff;
+  padding: 0.55rem;
+  text-align: left;
+}
+
+.market-player-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.market-player-top h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.market-player-top small {
+  font-size: 0.74rem;
+  color: var(--ink-soft);
+}
+
+.market-player-meta {
+  margin-top: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(60px, 1fr));
+  gap: 0.35rem;
+}
+
+.market-player-meta span {
+  border: 3px solid var(--line);
+  border-radius: 0.45rem;
+  font-size: 0.7rem;
+  text-align: center;
+  padding: 0.16rem 0.22rem;
+}
+
+.live-auction-board {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: 2fr 1fr;
+  grid-template-areas:
+    "player side"
+    "log composition";
+}
+
+.live-player-panel {
+  grid-area: player;
+  border: 3px solid var(--line);
+  border-radius: 1.2rem;
+  background: #fff;
+  padding: 0.9rem;
+  display: flex;
+  gap: 0.9rem;
+}
+
+.player-avatar {
+  width: 7rem;
+  height: 7rem;
+  flex-shrink: 0;
+}
+
+.player-info {
+  flex: 1;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.player-info h1 {
+  font-family: var(--font-display), serif;
+  font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+}
+
+.player-tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.player-tags span {
+  border: 3px solid var(--line);
+  border-radius: 0.6rem;
+  padding: 0.18rem 0.5rem;
+  font-size: 0.78rem;
+  background: #fff9ea;
+}
+
+.price-cards,
+.purse-grid,
+.composition-grid {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.price-cards {
+  grid-template-columns: repeat(2, minmax(130px, 1fr));
+}
+
+.purse-grid,
+.composition-grid {
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
+}
+
+.live-side-panel {
+  grid-area: side;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.purse-card,
+.bid-card,
+.bid-log-card,
+.composition-card {
+  border: 3px solid var(--line);
+  border-radius: 1rem;
+  background: #fff;
+  padding: 0.7rem;
+}
+
+.purse-card h2,
+.bid-card h2,
+.bid-log-card h2,
+.composition-card h2 {
+  font-family: var(--font-display), serif;
+  font-size: 1.25rem;
+}
+
+.live-bid-number {
+  font-size: 1.7rem;
+  font-weight: 800;
+  margin-top: 0.2rem;
+}
+
+.bid-step-row,
+.bid-actions-row {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.45rem;
+}
+
+.bid-actions-row .ghost-button,
+.bid-step-row .sketch-tab {
+  flex: 1;
+}
+
+.place-bid-button {
+  width: 100%;
+  margin-top: 0.55rem;
+}
+
+.bid-log-card {
+  grid-area: log;
+}
+
+.log-list {
+  margin-top: 0.5rem;
+  display: grid;
+  gap: 0.4rem;
+  max-height: 13.5rem;
+  overflow-y: auto;
+}
+
+.log-list p {
+  border: 3px solid var(--line);
+  border-radius: 0.6rem;
+  padding: 0.3rem 0.45rem;
+  font-size: 0.79rem;
+  background: #fffdf8;
+}
+
+.composition-card {
+  grid-area: composition;
+}
+
+.market-picker-row {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(6, minmax(140px, 1fr));
+}
+
+.market-pick {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.market-pick strong {
+  font-size: 0.86rem;
+}
+
+.market-pick span {
+  font-size: 0.73rem;
+  color: var(--ink-soft);
+}
+
+.market-pick.active {
+  background: #ececec;
+}
+
+.team-name-sub {
+  margin-top: 0.1rem;
+  font-weight: 700;
+}
+
+.auctioneer-shell,
+.admin-dashboard-shell {
+  max-width: 1300px;
+}
+
+.auctioneer-layout {
+  border: 3px solid var(--line);
+  border-radius: 1.6rem;
+  background: #fff;
+  box-shadow: 7px 7px 0 #0000002a;
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 2.4fr 1fr;
+}
+
+.auctioneer-main-panel {
+  border: 3px solid var(--line);
+  border-radius: 1.2rem;
+  padding: 0.8rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.auctioneer-hero-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 0.8rem;
+}
+
+.auctioneer-player-image,
+.auctioneer-stats-preview {
+  border: 3px solid var(--line);
+  border-radius: 1.3rem;
+  background: #f9f9f9;
+  min-height: 13rem;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  padding: 0.8rem;
+}
+
+.auctioneer-player-image span {
+  font-family: var(--font-display), serif;
+  font-size: clamp(1.6rem, 2.8vw, 2.5rem);
+}
+
+.auctioneer-stats-preview h2 {
+  font-family: var(--font-display), serif;
+  font-size: clamp(2rem, 3vw, 2.7rem);
+}
+
+.auctioneer-highlight-row {
+  margin-top: 0.4rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.auctioneer-highlight-row span {
+  font-size: 2.3rem;
+  font-weight: 800;
+}
+
+.auctioneer-highlight-row p {
+  color: var(--ink-soft);
+}
+
+.auctioneer-highlight-row strong {
+  font-size: 1.7rem;
+}
+
+.auctioneer-meta-row {
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: 1.5fr 1fr 1fr;
+}
+
+.auctioneer-meta-row article {
+  border: 3px solid var(--line);
+  border-radius: 0.9rem;
+  background: #fff;
+  padding: 0.5rem;
+  text-align: center;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.auctioneer-meta-row strong {
+  font-size: 1.2rem;
+}
+
+.auctioneer-meta-row small {
+  font-size: 0.78rem;
+}
+
+.auctioneer-side-panel {
+  border: 3px solid var(--line);
+  border-radius: 1rem;
+  padding: 0.7rem;
+  display: grid;
+  align-content: start;
+  gap: 0.6rem;
+}
+
+.auctioneer-side-panel h3 {
+  font-family: var(--font-display), serif;
+  font-size: 1.5rem;
+}
+
+.auctioneer-team-bids {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.auctioneer-team-bids div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
+
+.auctioneer-team-bids span {
+  border: 3px solid var(--line);
+  border-radius: 0.5rem;
+  background: #fff;
+  padding: 0.18rem 0.3rem;
+  font-size: 0.74rem;
+  text-align: center;
+}
+
+.auction-controls {
+  margin-top: 0.3rem;
+  border: 3px solid var(--line);
+  border-radius: 0.8rem;
+  padding: 0.45rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.auction-controls h4 {
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+
+.auction-controls .primary-button,
+.auction-controls .ghost-button {
+  min-height: 2.3rem;
+}
+
+.active-action {
+  outline: 3px solid #000;
+}
+
+.auctioneer-stats-card {
+  border: 3px solid var(--line);
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 6px 6px 0 #0000001f;
+  padding: 0.8rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.player-stat-banner {
+  border: 3px solid var(--line);
+  border-radius: 0.9rem;
+  background: #f8f8f8;
+  padding: 0.7rem;
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.player-stat-banner span {
+  font-size: clamp(2rem, 3vw, 3rem);
+  font-weight: 900;
+}
+
+.player-stat-banner p {
+  color: var(--ink-soft);
+}
+
+.player-stat-banner strong {
+  font-size: clamp(1.4rem, 2.5vw, 2.1rem);
+  justify-self: end;
+}
+
+.player-stat-grid {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(3, minmax(140px, 1fr));
+}
+
+.player-stat-grid article {
+  border: 3px solid var(--line);
+  border-radius: 0.75rem;
+  text-align: center;
+  padding: 0.45rem;
+}
+
+.player-stat-grid strong {
+  font-size: 1.7rem;
+}
+
+.player-stat-grid span {
+  display: block;
+  color: var(--ink-soft);
+}
+
+.super-admin-section {
+  margin-top: 0.8rem;
+  border: 3px solid var(--line);
+  border-radius: 1rem;
+  padding: 0.8rem;
+  background: #fff;
+}
+
+.super-admin-section h2,
+.super-admin-section h3 {
+  font-family: var(--font-display), serif;
+  margin-bottom: 0.6rem;
+}
+
+.bid-log-table-wrap {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.bid-log-head,
+.bid-log-row {
+  display: grid;
+  gap: 0.4rem;
+  grid-template-columns: 90px 1.6fr 1fr 1fr;
+  align-items: center;
+}
+
+.bid-log-head span,
+.bid-log-row span {
+  border: 3px solid var(--line);
+  border-radius: 0.55rem;
+  min-height: 2rem;
+  display: grid;
+  place-content: center;
+  background: #fff;
+}
+
+.bid-log-row {
+  margin-top: 0.4rem;
+}
+
+.live-control-grid {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.live-control-card {
+  border: 3px solid var(--line);
+  border-radius: 0.8rem;
+  padding: 0.6rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.teams-grid {
+  display: grid;
+  gap: 0.4rem;
+  grid-template-columns: repeat(5, minmax(70px, 1fr));
+}
+
+.super-admin-actions {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(2, minmax(140px, 1fr));
+}
+
+@media (max-width: 960px) {
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+  }
+
+  .franchise-grid {
+    grid-template-columns: repeat(3, minmax(110px, 1fr));
+  }
+
+  .market-grid {
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+  }
+
+  .live-auction-board {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "player"
+      "side"
+      "log"
+      "composition";
+  }
+
+  .market-picker-row {
+    grid-template-columns: repeat(3, minmax(140px, 1fr));
+  }
+
+  .auctioneer-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .auctioneer-hero-grid,
+  .auctioneer-meta-row,
+  .player-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .player-stat-banner {
+    grid-template-columns: 1fr;
+    text-align: left;
+  }
+
+  .player-stat-banner strong {
+    justify-self: start;
+  }
+
+  .teams-grid {
+    grid-template-columns: repeat(3, minmax(70px, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .admin-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .admin-actions {
+    width: 100%;
+  }
+
+  .admin-actions .sketch-button,
+  .admin-actions .logout-link {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .admin-tab-row {
+    overflow-x: auto;
+  }
+
+  .cta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .franchise-grid {
+    grid-template-columns: repeat(2, minmax(110px, 1fr));
+  }
+
+  .topbar-right {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .franchise-topbar-center {
+    display: none;
+  }
+
+  .team-purse-strip,
+  .market-player-meta,
+  .purse-grid,
+  .composition-grid,
+  .price-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .live-player-panel {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .market-grid,
+  .market-picker-row {
+    grid-template-columns: 1fr;
+  }
+
+  .live-auction-cta {
+    margin-left: 0;
+    width: 100%;
+    text-align: center;
+  }
+
+  .admin-role-picker {
+    grid-template-columns: 1fr;
+  }
+
+  .auctioneer-team-bids div,
+  .super-admin-actions,
+  .bid-log-head,
+  .bid-log-row {
+    grid-template-columns: 1fr;
+  }
+
+  .teams-grid {
+    grid-template-columns: repeat(2, minmax(70px, 1fr));
+  }
+}
